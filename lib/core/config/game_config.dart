@@ -6,7 +6,7 @@ class GameConfig {
   const GameConfig._();
 
   static const String appName = 'Kinetix';
-  static const String tagline = 'Physics, perfected.';
+  static const String tagline = 'Outsmart gravity.';
 
   /// Hive box name used for persisted progress.
   static const String progressBoxName = 'progress_box';
