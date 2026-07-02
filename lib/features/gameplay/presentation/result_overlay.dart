@@ -127,22 +127,7 @@ class _Card extends StatelessWidget {
                 scale: GameConfig.reducedMotion ? 1.0 : v.clamp(0.0, 1.3),
                 child: child,
               ),
-              child: Container(
-                width: 76,
-                height: 76,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: accent.withValues(alpha: 0.16),
-                  border: Border.all(color: accent.withValues(alpha: 0.5)),
-                ),
-                child: Icon(
-                  won
-                      ? Icons.emoji_events_rounded
-                      : Icons.sentiment_dissatisfied_rounded,
-                  color: accent,
-                  size: 42,
-                ),
-              ),
+              child: _ResultEmblem(won: won),
             ),
             const SizedBox(height: 12),
             Text(
@@ -196,6 +181,81 @@ class _Card extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Outcome medallion: a gradient-filled emblem with a soft glow. A gold trophy
+/// (with sparkles) for a win; a warm "aim again" bullseye for a loss — more
+/// inviting than a frowny face and on-theme for a slingshot game.
+class _ResultEmblem extends StatelessWidget {
+  const _ResultEmblem({required this.won});
+
+  final bool won;
+
+  @override
+  Widget build(BuildContext context) {
+    final gradient = won
+        ? const [AppColors.star, AppColors.warning]
+        : const [AppColors.secondary, AppColors.danger];
+    final glow = won ? AppColors.warning : AppColors.danger;
+    final icon = won ? Icons.emoji_events_rounded : Icons.adjust_rounded;
+
+    return SizedBox(
+      width: 108,
+      height: 108,
+      child: Stack(
+        alignment: Alignment.center,
+        clipBehavior: Clip.none,
+        children: [
+          // Medallion.
+          Container(
+            width: 88,
+            height: 88,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [
+                  gradient.first.withValues(alpha: 0.28),
+                  gradient.last.withValues(alpha: 0.10),
+                ],
+              ),
+              border: Border.all(color: gradient.first.withValues(alpha: 0.55)),
+              boxShadow: [
+                BoxShadow(
+                  color: glow.withValues(alpha: 0.45),
+                  blurRadius: 32,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            // Gradient-filled icon for a richer, less flat look.
+            child: ShaderMask(
+              shaderCallback: (rect) => LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: gradient,
+              ).createShader(rect),
+              child: Icon(icon, color: Colors.white, size: 48),
+            ),
+          ),
+          // Sparkles for a win.
+          if (won && !GameConfig.reducedMotion) ...[
+            Positioned(
+              top: 2,
+              right: 8,
+              child: Icon(Icons.auto_awesome,
+                  color: AppColors.star.withValues(alpha: 0.95), size: 20),
+            ),
+            Positioned(
+              bottom: 6,
+              left: 4,
+              child: Icon(Icons.auto_awesome,
+                  color: AppColors.star.withValues(alpha: 0.7), size: 14),
+            ),
+          ],
+        ],
       ),
     );
   }

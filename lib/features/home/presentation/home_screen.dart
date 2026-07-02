@@ -33,82 +33,95 @@ class HomeScreen extends ConsumerWidget {
             constraints: BoxConstraints(minHeight: constraints.maxHeight),
             child: IntrinsicHeight(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 12,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _TopBar(coins: coins, stars: totalStars),
-            const Spacer(),
-            const _AnimatedTitle(),
-            const SizedBox(height: 40),
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 420),
-                child: Column(
-                  children: [
-                    _EntranceItem(
-                      delayMs: 120,
-                      child: _PrimaryPlayButton(
-                        onTap: () => context.pushNamed(Routes.levels),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _EntranceItem(
-                      delayMs: 220,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: _SecondaryButton(
-                              icon: Icons.emoji_events_rounded,
-                              label: 'Achievements',
-                              onTap: () =>
-                                  context.pushNamed(Routes.achievements),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _DailyButton(
-                              canClaim: canClaimDaily,
-                              onTap: () => showDailyRewardDialog(context),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    _EntranceItem(
-                      delayMs: 300,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: _SecondaryButton(
-                              icon: Icons.grid_view_rounded,
-                              label: 'Levels',
-                              onTap: () => context.pushNamed(Routes.levels),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _SecondaryButton(
-                              icon: Icons.settings_rounded,
-                              label: 'Settings',
-                              onTap: () => context.pushNamed(Routes.settings),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
                     const Spacer(),
-                    Text(
-                      '${GameConfig.appName} · v1.0',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.label
-                          .copyWith(color: Colors.white.withValues(alpha: 0.4)),
+                    const _AnimatedTitle(),
+                    const SizedBox(height: 25),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 420),
+                        child: Column(
+                          children: [
+                            _EntranceItem(
+                              delayMs: 120,
+                              child: _PrimaryPlayButton(
+                                onTap: () => context.pushNamed(Routes.levels),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            _EntranceItem(
+                              delayMs: 220,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _SecondaryButton(
+                                      icon: Icons.emoji_events_rounded,
+                                      label: 'Achievements',
+                                      onTap: () => context.pushNamed(
+                                        Routes.achievements,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _DailyButton(
+                                      canClaim: canClaimDaily,
+                                      onTap: () =>
+                                          showDailyRewardDialog(context),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 9),
+                            _EntranceItem(
+                              delayMs: 300,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _SecondaryButton(
+                                      icon: Icons.grid_view_rounded,
+                                      label: 'Levels',
+                                      onTap: () =>
+                                          context.pushNamed(Routes.levels),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _SecondaryButton(
+                                      icon: Icons.settings_rounded,
+                                      label: 'Settings',
+                                      onTap: () =>
+                                          context.pushNamed(Routes.settings),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const SizedBox(width: 4),
+                        Text(
+                          '${GameConfig.appName} · v1.0',
+                          textAlign: TextAlign.center,
+                          style: AppTextStyles.label.copyWith(
+                            color: Colors.white.withValues(alpha: 0.4),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -131,20 +144,28 @@ class _TopBar extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        _StatChip(icon: Icons.star_rounded, color: AppColors.star, value: stars),
+        _StatChip(
+          icon: Icons.star_rounded,
+          color: AppColors.star,
+          value: stars,
+        ),
         const SizedBox(width: 10),
         _StatChip(
-            icon: Icons.monetization_on_rounded,
-            color: AppColors.warning,
-            value: coins),
+          icon: Icons.monetization_on_rounded,
+          color: AppColors.warning,
+          value: coins,
+        ),
       ],
     );
   }
 }
 
 class _StatChip extends StatelessWidget {
-  const _StatChip(
-      {required this.icon, required this.color, required this.value});
+  const _StatChip({
+    required this.icon,
+    required this.color,
+    required this.value,
+  });
   final IconData icon;
   final Color color;
   final int value;
@@ -152,7 +173,7 @@ class _StatChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassCard(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       radius: 16,
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -200,9 +221,10 @@ class _AnimatedTitleState extends State<_AnimatedTitle>
     return Column(
       children: [
         ScaleTransition(
-          scale: Tween(begin: 0.98, end: 1.02).animate(
-            CurvedAnimation(parent: _c, curve: Curves.easeInOut),
-          ),
+          scale: Tween(
+            begin: 0.98,
+            end: 1.02,
+          ).animate(CurvedAnimation(parent: _c, curve: Curves.easeInOut)),
           child: ShaderMask(
             shaderCallback: (rect) => const LinearGradient(
               colors: [AppColors.primary, AppColors.tertiary],
@@ -218,12 +240,13 @@ class _AnimatedTitleState extends State<_AnimatedTitle>
             ),
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         Text(
           GameConfig.tagline,
           textAlign: TextAlign.center,
-          style: AppTextStyles.title
-              .copyWith(color: Colors.white.withValues(alpha: 0.7)),
+          style: AppTextStyles.title.copyWith(
+            color: Colors.white.withValues(alpha: 0.7),
+          ),
         ),
       ],
     );
@@ -240,7 +263,7 @@ class _PrimaryPlayButton extends StatelessWidget {
       semanticLabel: 'Play',
       onPressed: onTap,
       child: Container(
-        height: 68,
+        height: 64,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
           gradient: const LinearGradient(
@@ -258,12 +281,19 @@ class _PrimaryPlayButton extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.play_arrow_rounded,
-                  color: Colors.white, size: 30),
+              const Icon(
+                Icons.play_arrow_rounded,
+                color: Colors.white,
+                size: 30,
+              ),
               const SizedBox(width: 8),
-              Text('PLAY',
-                  style: AppTextStyles.button
-                      .copyWith(color: Colors.white, fontSize: 22)),
+              Text(
+                'PLAY',
+                style: AppTextStyles.button.copyWith(
+                  color: Colors.white,
+                  fontSize: 22,
+                ),
+              ),
             ],
           ),
         ),
@@ -295,8 +325,10 @@ class _SecondaryButton extends StatelessWidget {
           children: [
             Icon(icon, color: Colors.white, size: 20),
             const SizedBox(width: 8),
-            Text(label,
-                style: AppTextStyles.button.copyWith(color: Colors.white)),
+            Text(
+              label,
+              style: AppTextStyles.button.copyWith(color: Colors.white),
+            ),
           ],
         ),
       ),
@@ -357,7 +389,10 @@ class _EntranceItem extends StatelessWidget {
       ),
       builder: (context, v, child) => Opacity(
         opacity: v.clamp(0, 1),
-        child: Transform.translate(offset: Offset(0, (1 - v) * 24), child: child),
+        child: Transform.translate(
+          offset: Offset(0, (1 - v) * 24),
+          child: child,
+        ),
       ),
       child: child,
     );
