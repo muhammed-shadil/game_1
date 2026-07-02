@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/game_config.dart';
+import '../../../core/services/audio_service.dart';
 import '../../progress/application/progress_providers.dart';
 import '../domain/app_settings.dart';
 
@@ -23,6 +24,7 @@ class SettingsNotifier extends Notifier<AppSettings> {
   void _applyToGameConfig(AppSettings s) {
     GameConfig.hapticsEnabled = s.haptics;
     GameConfig.reducedMotion = s.reducedMotion;
+    GameConfig.soundEnabled = s.soundEnabled;
   }
 
   Future<void> _update(AppSettings next) async {
@@ -40,6 +42,8 @@ class SettingsNotifier extends Notifier<AppSettings> {
   Future<void> setReducedMotion(bool value) =>
       _update(state.copyWith(reducedMotion: value));
 
-  Future<void> setSoundEnabled(bool value) =>
-      _update(state.copyWith(soundEnabled: value));
+  Future<void> setSoundEnabled(bool value) async {
+    await _update(state.copyWith(soundEnabled: value));
+    AudioService.instance.onSoundEnabledChanged(value);
+  }
 }

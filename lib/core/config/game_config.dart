@@ -39,6 +39,9 @@ class GameConfig {
   /// Whether haptics should fire. Toggled by the settings/accessibility layer.
   static bool hapticsEnabled = true;
 
+  /// Whether sound effects and music should play.
+  static bool soundEnabled = true;
+
   /// When true, cosmetic animations are minimised (accessibility).
   static bool reducedMotion = false;
 

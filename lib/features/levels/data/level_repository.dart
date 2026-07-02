@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 
 import '../domain/level.dart';
+import 'level_generator.dart';
 
 /// Loads level definitions from bundled JSON assets.
 ///
@@ -15,9 +16,13 @@ abstract interface class LevelRepository {
 }
 
 class AssetLevelRepository implements LevelRepository {
-  AssetLevelRepository({this.basePath = 'assets/levels'});
+  AssetLevelRepository({this.basePath = 'assets/levels', this.totalLevels = 50});
 
   final String basePath;
+
+  /// Total number of playable levels. Hand-authored levels come from JSON; the
+  /// remainder are procedurally generated so the game offers many stages.
+  final int totalLevels;
 
   /// Simple in-memory cache; levels are immutable so this is safe.
   List<Level>? _cache;
@@ -34,6 +39,13 @@ class AssetLevelRepository implements LevelRepository {
     for (final file in files) {
       final raw = await rootBundle.loadString('$basePath/$file');
       levels.add(Level.fromJson(jsonDecode(raw) as Map<String, dynamic>));
+    }
+
+    // Fill up to [totalLevels] with generated stages after the authored ones.
+    final authoredMax =
+        levels.fold(0, (m, l) => l.index > m ? l.index : m);
+    if (authoredMax < totalLevels) {
+      levels.addAll(LevelGenerator.generateRange(authoredMax + 1, totalLevels));
     }
 
     levels.sort((a, b) => a.index.compareTo(b.index));

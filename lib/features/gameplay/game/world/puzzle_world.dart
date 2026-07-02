@@ -5,6 +5,7 @@ import 'package:flame_forge2d/flame_forge2d.dart';
 import '../../../../core/config/physics_config.dart';
 import '../../../levels/domain/level.dart';
 import '../../../levels/domain/level_object.dart';
+import '../components/explosive_crate.dart';
 import '../components/ground.dart';
 import '../components/obstacle.dart';
 import '../components/projectile.dart';
@@ -40,6 +41,7 @@ class PuzzleWorld extends Forge2DWorld
   late final Slingshot slingshot;
   late final TrajectoryPreview trajectory;
   final List<Target> targets = [];
+  final List<ExplosiveCrate> explosives = [];
 
   // Live pointers, keyed by pointerId. Device (screen) positions are used for
   // the pinch distance so changing the zoom doesn't feed back into the gesture;
@@ -66,6 +68,10 @@ class PuzzleWorld extends Forge2DWorld
           final target = Target.fromSpec(spec);
           targets.add(target);
           add(target);
+        case LevelObjectType.explosive:
+          final crate = ExplosiveCrate.fromSpec(spec);
+          explosives.add(crate);
+          add(crate);
         case LevelObjectType.unknown:
           break; // Forward-compatible: ignore unrecognised types.
       }

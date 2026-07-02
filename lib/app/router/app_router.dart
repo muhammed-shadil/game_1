@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/config/game_config.dart';
+import '../../features/achievements/presentation/achievements_screen.dart';
 import '../../features/gameplay/presentation/game_page.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/levels/presentation/level_select_screen.dart';
@@ -14,6 +15,7 @@ abstract class Routes {
   static const levels = 'levels';
   static const play = 'play';
   static const settings = 'settings';
+  static const achievements = 'achievements';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -37,6 +39,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: Routes.settings,
         pageBuilder: (context, state) =>
             _slide(state, const SettingsScreen()),
+      ),
+      GoRoute(
+        path: '/achievements',
+        name: Routes.achievements,
+        pageBuilder: (context, state) =>
+            _slide(state, const AchievementsScreen()),
       ),
       GoRoute(
         path: '/play/:id',

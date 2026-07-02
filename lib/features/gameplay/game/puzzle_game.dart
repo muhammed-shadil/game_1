@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../core/config/game_config.dart';
 import '../../../core/config/physics_config.dart';
+import '../../../core/services/audio_service.dart';
 import '../../levels/domain/level.dart';
 import 'camera/game_camera_controller.dart';
 import 'components/physics_part.dart';
@@ -42,6 +43,7 @@ class PuzzleGame extends Forge2DGame<PuzzleWorld> {
   GameCameraController? cameraController;
 
   int _shotsUsed = 0;
+  int _explosionsThisRun = 0;
   double _settleTimer = 0;
   double _simTime = 0;
   bool _resolved = false;
@@ -146,6 +148,7 @@ class PuzzleGame extends Forge2DGame<PuzzleWorld> {
     phase.value = GamePhase.simulating;
     _settleTimer = 0;
     _simTime = 0;
+    AudioService.instance.launch();
 
     cameraController
       ?..follow(projectile.center, lerp: GameConfig.cameraFollowLerp)
@@ -161,6 +164,9 @@ class PuzzleGame extends Forge2DGame<PuzzleWorld> {
       intensity: intensity,
     ));
     cameraController?.addTrauma(0.12 * intensity);
+    if (speed > PhysicsConfig.impactSpeedThreshold) {
+      AudioService.instance.impact();
+    }
   }
 
   void onTargetHit(Vector2 worldPos) {
@@ -180,6 +186,61 @@ class PuzzleGame extends Forge2DGame<PuzzleWorld> {
       intensity: 1.8,
     ));
     cameraController?.addTrauma(0.5);
+    AudioService.instance.breakTarget();
+  }
+
+  /// Resolves a crate detonation: outward impulse on nearby bodies, destroys
+  /// targets in the kill radius, and chain-detonates other crates in range.
+  void onExplosion(Vector2 origin) {
+    _explosionsThisRun++;
+    AudioService.instance.explosion();
+
+    // Big fiery burst + strong shake.
+    world.add(ParticleEffects.impactBurst(
+      position: origin,
+      color: const Color(0xFFFFB03A),
+      intensity: 3.0,
+    ));
+    world.add(ParticleEffects.impactBurst(
+      position: origin,
+      color: const Color(0xFFFF5A2A),
+      intensity: 2.2,
+    ));
+    cameraController?.addTrauma(0.9);
+
+    // Radial impulse on every dynamic body in range.
+    final radius = PhysicsConfig.explosionRadius;
+    for (final body in world.physicsWorld.bodies) {
+      if (body.bodyType != BodyType.dynamic) continue;
+      final delta = body.worldCenter - origin;
+      final dist = delta.length;
+      if (dist > radius || dist < 0.0001) continue;
+      final falloff = 1 - (dist / radius);
+      final dir = delta.normalized();
+      body.applyLinearImpulse(
+        dir * (PhysicsConfig.explosionImpulse * falloff * body.mass),
+      );
+      body.setAwake(true);
+    }
+
+    // Destroy targets within the kill radius.
+    final killR = PhysicsConfig.explosionKillRadius;
+    for (final target in List.of(world.targets)) {
+      if (!target.isMounted) continue;
+      if (target.body.worldCenter.distanceTo(origin) <= killR) {
+        world.targets.remove(target);
+        onTargetDestroyed(target.center.clone());
+        target.removeFromParent();
+      }
+    }
+
+    // Chain-react: detonate other armed crates within blast radius.
+    for (final crate in List.of(world.explosives)) {
+      if (!crate.isMounted || !crate.armed) continue;
+      if (crate.center.distanceTo(origin) <= radius) {
+        crate.detonate();
+      }
+    }
   }
 
   @override
@@ -291,12 +352,17 @@ class PuzzleGame extends Forge2DGame<PuzzleWorld> {
     final stars = won ? level.starsForShots(_shotsUsed) : 0;
     if (won) {
       cameraController?.addTrauma(0.4);
+      AudioService.instance.win();
+    } else {
+      AudioService.instance.fail();
     }
     onResolved(GameResult(
       won: won,
       stars: stars,
       shotsUsed: _shotsUsed,
       targetsRemaining: targetsLeft.value,
+      targetsDestroyed: level.targetCount - targetsLeft.value,
+      explosionsTriggered: _explosionsThisRun,
     ));
   }
 

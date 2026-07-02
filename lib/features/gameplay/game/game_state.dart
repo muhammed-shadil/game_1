@@ -20,6 +20,8 @@ class GameResult {
     required this.stars,
     required this.shotsUsed,
     required this.targetsRemaining,
+    required this.targetsDestroyed,
+    required this.explosionsTriggered,
   });
 
   final bool won;
@@ -28,4 +30,10 @@ class GameResult {
 
   /// Targets left standing (0 on a win).
   final int targetsRemaining;
+
+  /// Targets destroyed during this run (for stats / achievements).
+  final int targetsDestroyed;
+
+  /// Crates detonated during this run (for achievements).
+  final int explosionsTriggered;
 }

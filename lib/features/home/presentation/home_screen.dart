@@ -9,6 +9,8 @@ import '../../../core/config/game_config.dart';
 import '../../../shared/widgets/glass_card.dart';
 import '../../../shared/widgets/gradient_scaffold.dart';
 import '../../../shared/widgets/pressable.dart';
+import '../../daily/application/daily_providers.dart';
+import '../../daily/presentation/daily_reward_dialog.dart';
 import '../../progress/application/progress_providers.dart';
 
 /// Animated main menu. Title breathes, buttons stagger in, coins are shown in a
@@ -20,14 +22,23 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final coins = ref.watch(progressProvider).coins;
     final totalStars = ref.watch(progressProvider).totalStars;
+    // Subscribe so the daily badge refreshes after a claim.
+    ref.watch(dailyProvider);
+    final canClaimDaily = ref.read(dailyProvider.notifier).canClaim;
 
     return GradientScaffold(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _TopBar(coins: coins, stars: totalStars),
+      child: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: IntrinsicHeight(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _TopBar(coins: coins, stars: totalStars),
             const Spacer(),
             const _AnimatedTitle(),
             const SizedBox(height: 40),
@@ -45,6 +56,29 @@ class HomeScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
                     _EntranceItem(
                       delayMs: 220,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _SecondaryButton(
+                              icon: Icons.emoji_events_rounded,
+                              label: 'Achievements',
+                              onTap: () =>
+                                  context.pushNamed(Routes.achievements),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _DailyButton(
+                              canClaim: canClaimDaily,
+                              onTap: () => showDailyRewardDialog(context),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _EntranceItem(
+                      delayMs: 300,
                       child: Row(
                         children: [
                           Expanded(
@@ -69,14 +103,18 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            const Spacer(),
-            Text(
-              '${GameConfig.appName} · v1.0',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.label
-                  .copyWith(color: Colors.white.withValues(alpha: 0.4)),
+                    const Spacer(),
+                    Text(
+                      '${GameConfig.appName} · v1.0',
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.label
+                          .copyWith(color: Colors.white.withValues(alpha: 0.4)),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -262,6 +300,41 @@ class _SecondaryButton extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Daily-reward button with a pulsing badge when a reward is available.
+class _DailyButton extends StatelessWidget {
+  const _DailyButton({required this.canClaim, required this.onTap});
+  final bool canClaim;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        _SecondaryButton(
+          icon: Icons.card_giftcard_rounded,
+          label: 'Daily',
+          onTap: onTap,
+        ),
+        if (canClaim)
+          Positioned(
+            right: -2,
+            top: -2,
+            child: Container(
+              width: 14,
+              height: 14,
+              decoration: BoxDecoration(
+                color: AppColors.danger,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
