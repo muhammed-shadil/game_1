@@ -92,16 +92,27 @@ class PuzzleGame extends Forge2DGame<PuzzleWorld> {
     cameraController?.setViewportWorldSize(_viewportWorldSize());
   }
 
-  /// Called from the HUD zoom buttons.
-  void zoomIn() {
-    _zoomFactor = (_zoomFactor * 1.25).clamp(_minZoomFactor, _maxZoomFactor);
-    _applyZoom();
+  /// Transparent so the painted scene behind the [GameWidget] shows through
+  /// (Flame's default background is opaque black).
+  @override
+  Color backgroundColor() => const Color(0x00000000);
+
+  /// Current absolute camera zoom (pixels per meter). The world snapshots this
+  /// at the start of a pinch so it can scale relative to the gesture.
+  double get currentZoom => camera.viewfinder.zoom;
+
+  /// Sets an absolute zoom, clamped between "whole level visible" and a sane
+  /// max zoom-in. Called continuously during a pinch gesture.
+  void setZoom(double desiredZoom) {
+    final base = _baseZoom();
+    final z = desiredZoom.clamp(base * _minZoomFactor, base * _maxZoomFactor);
+    camera.viewfinder.zoom = z;
+    _zoomFactor = z / base;
+    cameraController?.setViewportWorldSize(_viewportWorldSize());
   }
 
-  void zoomOut() {
-    _zoomFactor = (_zoomFactor / 1.25).clamp(_minZoomFactor, _maxZoomFactor);
-    _applyZoom();
-  }
+  /// Pans the camera by a world-space delta (one-finger drag on empty space).
+  void panView(Vector2 worldDelta) => cameraController?.panBy(worldDelta);
 
   @override
   void onGameResize(Vector2 size) {

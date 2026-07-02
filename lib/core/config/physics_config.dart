@@ -71,6 +71,10 @@ class PhysicsConfig {
   /// clamped, giving a consistent maximum power regardless of screen size.
   static const double maxPullDistance = 6.0;
 
+  /// How close (meters) a touch must start to the slingshot pouch to grab the
+  /// ball. Generous so aiming feels forgiving, like a real slingshot game.
+  static const double grabRadius = 5.0;
+
   /// Converts pull distance into launch impulse. Higher = more powerful shots.
   static const double launchPower = 9.5;
 

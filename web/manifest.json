@@ -1,6 +1,6 @@
 {
-    "name": "game_1",
-    "short_name": "game_1",
+    "name": "Kinetix",
+    "short_name": "Kinetix",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

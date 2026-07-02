@@ -137,13 +137,18 @@ class _GameViewState extends ConsumerState<_GameView> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Sky backdrop shows through the transparent game canvas.
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: AppColors.skyDay,
+          // Painted scene shows through the (transparent) game canvas.
+          Image.asset(
+            'assets/images/game_bg.png',
+            fit: BoxFit.cover,
+            // Gradient fallback in case the asset can't be decoded.
+            errorBuilder: (context, error, stack) => const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: AppColors.skyDay,
+                ),
               ),
             ),
           ),

@@ -82,6 +82,16 @@ class Slingshot extends Component {
     return projectile;
   }
 
+  /// Aborts the current aim without launching (e.g. a second finger started a
+  /// pinch-zoom). Snaps the ball back to rest.
+  void cancelAim() {
+    if (!_aiming) return;
+    _aiming = false;
+    _pull.setZero();
+    _held?.body.setTransform(anchor, 0);
+    trajectory.hide();
+  }
+
   /// Resulting launch velocity: opposite the pull, scaled by draw strength.
   Vector2 _launchVelocity() => -_pull * PhysicsConfig.launchPower;
 

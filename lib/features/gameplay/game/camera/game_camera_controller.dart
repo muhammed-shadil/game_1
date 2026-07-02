@@ -56,6 +56,16 @@ class GameCameraController extends Component {
     _trauma = MathUtils.clamp(_trauma + amount, 0, 1);
   }
 
+  /// Immediately shifts the view by a world-space delta (one-finger pan on
+  /// empty space). Moving the finger drags the world, so the camera moves the
+  /// opposite way. Clamped so the view never leaves the level.
+  void panBy(Vector2 worldDelta) {
+    _target.sub(worldDelta);
+    _position = _clampToBounds(_target.clone());
+    _target.setFrom(_position);
+    camera.viewfinder.position = _position;
+  }
+
   void setViewportWorldSize(Vector2 size) => viewportWorldSize = size;
 
   @override

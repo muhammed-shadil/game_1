@@ -23,79 +23,34 @@ class GameHud extends StatelessWidget {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(14),
-        child: Stack(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Pressable(
-                  semanticLabel: 'Pause',
-                  onPressed: onPause,
-                  child: GlassCard(
-                    padding: const EdgeInsets.all(10),
-                    radius: 14,
-                    child:
-                        const Icon(Icons.pause_rounded, color: Colors.white),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                GlassCard(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  radius: 14,
-                  child: Text(
-                    game.level.name,
-                    style: AppTextStyles.title.copyWith(color: Colors.white),
-                  ),
-                ),
-                const Spacer(),
-                _TargetsChip(game: game),
-                const SizedBox(width: 12),
-                _ShotsChip(game: game),
-              ],
+            Pressable(
+              semanticLabel: 'Pause',
+              onPressed: onPause,
+              child: GlassCard(
+                padding: const EdgeInsets.all(10),
+                radius: 14,
+                child: const Icon(Icons.pause_rounded, color: Colors.white),
+              ),
             ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: _ZoomControls(game: game),
+            const SizedBox(width: 12),
+            GlassCard(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              radius: 14,
+              child: Text(
+                game.level.name,
+                style: AppTextStyles.title.copyWith(color: Colors.white),
+              ),
             ),
+            const Spacer(),
+            _TargetsChip(game: game),
+            const SizedBox(width: 12),
+            _ShotsChip(game: game),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _ZoomControls extends StatelessWidget {
-  const _ZoomControls({required this.game});
-  final PuzzleGame game;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _ZoomButton(icon: Icons.add_rounded, onTap: game.zoomIn),
-        const SizedBox(height: 10),
-        _ZoomButton(icon: Icons.remove_rounded, onTap: game.zoomOut),
-      ],
-    );
-  }
-}
-
-class _ZoomButton extends StatelessWidget {
-  const _ZoomButton({required this.icon, required this.onTap});
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Pressable(
-      semanticLabel: 'Zoom',
-      onPressed: onTap,
-      child: GlassCard(
-        padding: const EdgeInsets.all(10),
-        radius: 14,
-        child: Icon(icon, color: Colors.white),
       ),
     );
   }
