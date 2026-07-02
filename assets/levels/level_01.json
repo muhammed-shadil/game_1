@@ -1,0 +1,15 @@
+{
+  "id": "level_01",
+  "name": "First Contact",
+  "index": 1,
+  "difficulty": "tutorial",
+  "shots": 3,
+  "worldSize": [64, 34],
+  "gravityScale": 1.0,
+  "slingshot": [9, 26],
+  "starThresholds": { "twoStar": 2, "threeStar": 1 },
+  "objects": [
+    { "type": "ground", "shape": "box", "material": "ground", "position": [32, 32], "size": [90, 4] },
+    { "type": "target", "shape": "box", "material": "target", "position": [40, 28], "size": [2.4, 4] }
+  ]
+}

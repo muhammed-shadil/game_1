@@ -1,0 +1,299 @@
+import 'dart:math' as math;
+
+import 'package:flame/extensions.dart';
+import 'package:flame_forge2d/flame_forge2d.dart';
+import 'package:flutter/foundation.dart';
+
+import '../../../core/config/game_config.dart';
+import '../../../core/config/physics_config.dart';
+import '../../levels/domain/level.dart';
+import 'camera/game_camera_controller.dart';
+import 'components/physics_part.dart';
+import 'components/projectile.dart';
+import 'components/target.dart';
+import 'effects/particle_effects.dart';
+import 'game_state.dart';
+import 'world/puzzle_world.dart';
+
+/// The root Forge2D game for a single level.
+///
+/// Owns turn/scoring state and exposes it to the Flutter HUD via
+/// [ValueNotifier]s (so widgets rebuild without the game knowing about them).
+/// Physics + spawning live in [PuzzleWorld]; camera easing in
+/// [GameCameraController]; this class is the referee.
+class PuzzleGame extends Forge2DGame<PuzzleWorld> {
+  PuzzleGame({required this.level, required this.onResolved})
+      : super(
+          world: PuzzleWorld(level: level),
+          gravity: PhysicsConfig.gravity * level.gravityScale,
+          zoom: PhysicsConfig.zoom,
+        );
+
+  final Level level;
+
+  /// Invoked once when the level is won or lost.
+  final void Function(GameResult result) onResolved;
+
+  // --- HUD-facing reactive state ---------------------------------------------
+  late final ValueNotifier<int> shotsLeft = ValueNotifier(level.shots);
+  late final ValueNotifier<int> targetsLeft = ValueNotifier(level.targetCount);
+  final ValueNotifier<GamePhase> phase = ValueNotifier(GamePhase.aiming);
+
+  GameCameraController? cameraController;
+
+  int _shotsUsed = 0;
+  double _settleTimer = 0;
+  double _simTime = 0;
+  bool _resolved = false;
+  Projectile? _activeProjectile;
+
+  // Padding (meters) kept around the level when fitting it to the screen.
+  static const double _hPadding = 6;
+  static const double _vPadding = 4;
+
+  /// User zoom multiplier on top of the fit-to-level base zoom. 1.0 shows the
+  /// whole level; higher zooms in. Adjusted via [zoomIn] / [zoomOut].
+  double _zoomFactor = 1.0;
+  static const double _minZoomFactor = 1.0;
+  static const double _maxZoomFactor = 3.0;
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+
+    camera.viewfinder.zoom = _baseZoom() * _zoomFactor;
+    cameraController = GameCameraController(
+      camera: camera,
+      worldSize: level.worldSize,
+      viewportWorldSize: _viewportWorldSize(),
+      initialTarget: level.worldSize / 2,
+    );
+    world.add(cameraController!);
+
+    await world.build();
+    await world.loadNextProjectile();
+    _focusOnSlingshot(snap: true);
+  }
+
+  // --- Camera / zoom ---------------------------------------------------------
+
+  /// Zoom that makes the entire level (plus padding) fit on screen. We take the
+  /// smaller of the width/height fits so nothing is ever cropped.
+  double _baseZoom() {
+    final zx = size.x / (level.worldSize.x + _hPadding);
+    final zy = size.y / (level.worldSize.y + _vPadding);
+    return math.min(zx, zy);
+  }
+
+  Vector2 _viewportWorldSize() => size / camera.viewfinder.zoom;
+
+  void _applyZoom() {
+    camera.viewfinder.zoom = _baseZoom() * _zoomFactor;
+    cameraController?.setViewportWorldSize(_viewportWorldSize());
+  }
+
+  /// Called from the HUD zoom buttons.
+  void zoomIn() {
+    _zoomFactor = (_zoomFactor * 1.25).clamp(_minZoomFactor, _maxZoomFactor);
+    _applyZoom();
+  }
+
+  void zoomOut() {
+    _zoomFactor = (_zoomFactor / 1.25).clamp(_minZoomFactor, _maxZoomFactor);
+    _applyZoom();
+  }
+
+  @override
+  void onGameResize(Vector2 size) {
+    super.onGameResize(size);
+    if (isLoaded) _applyZoom();
+  }
+
+  void _focusOnSlingshot({bool snap = false}) {
+    // At base zoom the level is fully visible, so the clamp keeps things
+    // centred; when zoomed in this frames the launcher.
+    cameraController?.follow(
+      world.slingshot.pouch,
+      snap: snap,
+      lerp: GameConfig.cameraFollowLerp,
+    );
+  }
+
+  // --- Turn flow -------------------------------------------------------------
+
+  /// Called by the world when the player begins drawing back the slingshot.
+  void onAimStart() {
+    if (phase.value != GamePhase.aiming) return;
+    cameraController?.follow(world.slingshot.pouch, lerp: 10);
+  }
+
+  /// Called by the world when a projectile is released.
+  void onProjectileLaunched(Projectile projectile) {
+    _activeProjectile = projectile;
+    _shotsUsed++;
+    shotsLeft.value = (shotsLeft.value - 1).clamp(0, level.shots);
+    phase.value = GamePhase.simulating;
+    _settleTimer = 0;
+    _simTime = 0;
+
+    cameraController
+      ?..follow(projectile.center, lerp: GameConfig.cameraFollowLerp)
+      ..addTrauma(0.25);
+  }
+
+  void onProjectileImpact(Vector2 worldPos, double speed) {
+    final intensity =
+        (speed / PhysicsConfig.impactSpeedThreshold).clamp(0.4, 2.5);
+    world.add(ParticleEffects.impactBurst(
+      position: worldPos,
+      color: const Color(0xFFFFE0B0),
+      intensity: intensity,
+    ));
+    cameraController?.addTrauma(0.12 * intensity);
+  }
+
+  void onTargetHit(Vector2 worldPos) {
+    world.add(ParticleEffects.impactBurst(
+      position: worldPos,
+      color: const Color(0xFFFFB07D),
+      intensity: 0.8,
+    ));
+    cameraController?.addTrauma(0.2);
+  }
+
+  void onTargetDestroyed(Vector2 worldPos) {
+    targetsLeft.value = (targetsLeft.value - 1).clamp(0, level.targetCount);
+    world.add(ParticleEffects.impactBurst(
+      position: worldPos,
+      color: const Color(0xFFFF6B4A),
+      intensity: 1.8,
+    ));
+    cameraController?.addTrauma(0.5);
+  }
+
+  @override
+  void update(double dt) {
+    // Clamp long frames so a stall can't explode the simulation.
+    final clamped =
+        dt > PhysicsConfig.maxFrameDelta ? PhysicsConfig.maxFrameDelta : dt;
+    super.update(clamped);
+
+    if (phase.value == GamePhase.simulating && !_resolved) {
+      _simTime += clamped;
+      _cullOutOfBounds();
+      _trackAndDetectSettle(clamped);
+    }
+  }
+
+  void _trackAndDetectSettle(double dt) {
+    // Keep the active projectile framed while it's still lively.
+    final projectile = _activeProjectile;
+    if (projectile != null && projectile.isMounted) {
+      if (projectile.body.linearVelocity.length > 1.5) {
+        cameraController?.follow(projectile.center);
+      }
+    }
+
+    if (_sceneIsResting()) {
+      _settleTimer += dt;
+      if (_settleTimer >= PhysicsConfig.settleDuration) {
+        _resolveTurn();
+      }
+    } else {
+      _settleTimer = 0;
+      // Safety net: never let a shot simulate forever (e.g. endless sliding).
+      if (_simTime >= PhysicsConfig.maxSimDuration) {
+        _resolveTurn();
+      }
+    }
+  }
+
+  bool _sceneIsResting() {
+    for (final body in world.physicsWorld.bodies) {
+      if (body.bodyType != BodyType.dynamic) continue;
+      if (body.linearVelocity.length > PhysicsConfig.sleepLinearVelocity ||
+          body.angularVelocity.abs() > PhysicsConfig.sleepAngularVelocity) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /// Removes bodies that have left the play area. Without this a shot (or a
+  /// knocked-away piece) that sails off the ground would free-fall forever and
+  /// the scene would never come to rest — so the turn would never resolve.
+  ///
+  /// A target that leaves the level counts as destroyed (knocked out of play).
+  void _cullOutOfBounds() {
+    final w = level.worldSize;
+    final m = PhysicsConfig.outOfBoundsMargin;
+
+    // Only cull below the floor or far off the sides. Do NOT cull for being
+    // high up — projectiles legitimately arc above the top of the level and
+    // gravity brings them back.
+    bool isOut(Vector2 p) => p.y > w.y + m || p.x < -m || p.x > w.x + m;
+
+    // Targets first (so they score as destroyed).
+    for (final target in List<Target>.from(world.targets)) {
+      if (!target.isMounted) continue;
+      if (isOut(target.body.position)) {
+        world.targets.remove(target);
+        onTargetDestroyed(target.center.clone());
+        target.removeFromParent();
+      }
+    }
+
+    // Any other dynamic body (projectile, obstacle) that fell away.
+    for (final body in world.physicsWorld.bodies) {
+      if (body.bodyType != BodyType.dynamic) continue;
+      if (!isOut(body.position)) continue;
+      final data = body.userData;
+      if (data is Target) continue; // already handled above
+      if (data is PhysicsPart && data.isMounted) {
+        data.removeFromParent();
+      }
+    }
+  }
+
+  void _resolveTurn() {
+    _settleTimer = 0;
+    _simTime = 0;
+    if (targetsLeft.value <= 0) {
+      _finish(won: true);
+    } else if (shotsLeft.value <= 0) {
+      _finish(won: false);
+    } else {
+      // Next shot.
+      phase.value = GamePhase.aiming;
+      _activeProjectile?.markSpent();
+      _activeProjectile = null;
+      world.loadNextProjectile();
+      _focusOnSlingshot();
+    }
+  }
+
+  void _finish({required bool won}) {
+    if (_resolved) return;
+    _resolved = true;
+    phase.value = won ? GamePhase.won : GamePhase.lost;
+
+    final stars = won ? level.starsForShots(_shotsUsed) : 0;
+    if (won) {
+      cameraController?.addTrauma(0.4);
+    }
+    onResolved(GameResult(
+      won: won,
+      stars: stars,
+      shotsUsed: _shotsUsed,
+      targetsRemaining: targetsLeft.value,
+    ));
+  }
+
+  @override
+  void onRemove() {
+    shotsLeft.dispose();
+    targetsLeft.dispose();
+    phase.dispose();
+    super.onRemove();
+  }
+}

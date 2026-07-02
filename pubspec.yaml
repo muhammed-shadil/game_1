@@ -64,6 +64,11 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  # Level definitions are loaded from JSON so a future visual level editor
+  # can produce/consume the same format without touching Dart code.
+  assets:
+    - assets/levels/
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

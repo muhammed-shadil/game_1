@@ -1,0 +1,16 @@
+{
+  "id": "level_02",
+  "name": "Over the Wall",
+  "index": 2,
+  "difficulty": "tutorial",
+  "shots": 3,
+  "worldSize": [64, 34],
+  "gravityScale": 1.0,
+  "slingshot": [9, 26],
+  "starThresholds": { "twoStar": 2, "threeStar": 1 },
+  "objects": [
+    { "type": "ground", "shape": "box", "material": "ground", "position": [32, 32], "size": [90, 4] },
+    { "type": "obstacle", "shape": "box", "material": "stone", "position": [38, 26], "size": [1.2, 8] },
+    { "type": "target", "shape": "circle", "material": "target", "position": [46, 28.6], "size": [2.8, 2.8] }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "id": "level_06",
+  "name": "The Overpass",
+  "index": 6,
+  "difficulty": "hard",
+  "shots": 4,
+  "worldSize": [70, 34],
+  "gravityScale": 1.0,
+  "slingshot": [9, 26],
+  "starThresholds": { "twoStar": 3, "threeStar": 2 },
+  "objects": [
+    { "type": "ground", "shape": "box", "material": "ground", "position": [35, 32], "size": [100, 4] },
+    { "type": "obstacle", "shape": "box", "material": "stone", "position": [40, 24], "size": [1.5, 12] },
+    { "type": "obstacle", "shape": "box", "material": "wood", "position": [50, 26], "size": [6, 1] },
+    { "type": "target", "shape": "box", "material": "target", "position": [48, 28], "size": [2, 4] },
+    { "type": "target", "shape": "circle", "material": "target", "position": [54, 28.4], "size": [2.4, 2.4] },
+    { "type": "obstacle", "shape": "box", "material": "ice", "position": [58, 28], "size": [1, 4] }
+  ]
+}

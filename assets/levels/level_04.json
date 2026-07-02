@@ -1,0 +1,17 @@
+{
+  "id": "level_04",
+  "name": "High Ground",
+  "index": 4,
+  "difficulty": "easy",
+  "shots": 3,
+  "worldSize": [64, 34],
+  "gravityScale": 1.0,
+  "slingshot": [9, 26],
+  "starThresholds": { "twoStar": 2, "threeStar": 1 },
+  "objects": [
+    { "type": "ground", "shape": "box", "material": "ground", "position": [32, 32], "size": [90, 4] },
+    { "type": "obstacle", "shape": "box", "material": "stone", "position": [44, 28], "size": [4, 4] },
+    { "type": "obstacle", "shape": "box", "material": "wood", "position": [44, 24.5], "size": [4.2, 1] },
+    { "type": "target", "shape": "circle", "material": "target", "position": [44, 23], "size": [2.4, 2.4] }
+  ]
+}

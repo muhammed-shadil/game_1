@@ -1,0 +1,18 @@
+{
+  "id": "level_03",
+  "name": "Glass House",
+  "index": 3,
+  "difficulty": "easy",
+  "shots": 3,
+  "worldSize": [64, 34],
+  "gravityScale": 1.0,
+  "slingshot": [9, 26],
+  "starThresholds": { "twoStar": 2, "threeStar": 1 },
+  "objects": [
+    { "type": "ground", "shape": "box", "material": "ground", "position": [32, 32], "size": [90, 4] },
+    { "type": "obstacle", "shape": "box", "material": "ice", "position": [44, 26], "size": [1, 8] },
+    { "type": "obstacle", "shape": "box", "material": "ice", "position": [50, 22.5], "size": [8, 1] },
+    { "type": "target", "shape": "box", "material": "target", "position": [42, 28], "size": [2.2, 4] },
+    { "type": "target", "shape": "box", "material": "target", "position": [52, 28], "size": [2.2, 4] }
+  ]
+}
