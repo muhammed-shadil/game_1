@@ -1,0 +1,17 @@
+{
+  "id": "level_09",
+  "name": "Pyramid",
+  "index": 9,
+  "difficulty": "medium",
+  "shots": 3,
+  "worldSize": [64, 34],
+  "slingshot": [9, 26],
+  "starThresholds": { "twoStar": 3, "threeStar": 2 },
+  "objects": [
+    { "type": "ground", "shape": "box", "material": "ground", "position": [32, 32], "size": [90, 4] },
+    { "type": "obstacle", "shape": "box", "material": "wood", "position": [43, 28], "size": [2, 4] },
+    { "type": "obstacle", "shape": "box", "material": "wood", "position": [47, 28], "size": [2, 4] },
+    { "type": "target", "shape": "box", "material": "target", "position": [45, 24.5], "size": [2.4, 3] },
+    { "type": "target", "shape": "box", "material": "target", "position": [57, 28], "size": [2.2, 4] }
+  ]
+}

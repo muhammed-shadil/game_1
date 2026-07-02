@@ -1,0 +1,18 @@
+{
+  "id": "level_10",
+  "name": "Ice Rink",
+  "index": 10,
+  "difficulty": "hard",
+  "shots": 3,
+  "worldSize": [64, 34],
+  "slingshot": [9, 26],
+  "starThresholds": { "twoStar": 3, "threeStar": 2 },
+  "objects": [
+    { "type": "ground", "shape": "box", "material": "ground", "position": [32, 32], "size": [90, 4] },
+    { "type": "obstacle", "shape": "box", "material": "ice", "position": [42, 29], "size": [10, 2] },
+    { "type": "target", "shape": "box", "material": "target", "position": [39, 26.5], "size": [2, 3] },
+    { "type": "target", "shape": "box", "material": "target", "position": [45, 26.5], "size": [2, 3] },
+    { "type": "obstacle", "shape": "box", "material": "ice", "position": [55, 29], "size": [6, 2] },
+    { "type": "target", "shape": "box", "material": "target", "position": [55, 26.5], "size": [2, 3] }
+  ]
+}

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/config/game_config.dart';
+import '../../../shared/widgets/confetti.dart';
 import '../../../shared/widgets/pressable.dart';
 import '../../../shared/widgets/star_rating.dart';
 
@@ -42,6 +43,8 @@ class ResultOverlay extends StatelessWidget {
               filter: ImageFilter.blur(sigmaX: 12 * t, sigmaY: 12 * t),
               child: Container(color: Colors.black.withValues(alpha: 0.45 * t)),
             ),
+            // Celebratory confetti behind the card (wins only).
+            if (won) const Positioned.fill(child: ConfettiBurst()),
             // Centre when it fits; scroll when the screen is too short
             // (small landscape phones) so content is never clipped.
             SafeArea(
@@ -116,14 +119,32 @@ class _Card extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              won
-                  ? Icons.emoji_events_rounded
-                  : Icons.sentiment_dissatisfied_rounded,
-              color: accent,
-              size: 46,
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: 1),
+              duration: const Duration(milliseconds: 650),
+              curve: Curves.elasticOut,
+              builder: (context, v, child) => Transform.scale(
+                scale: GameConfig.reducedMotion ? 1.0 : v.clamp(0.0, 1.3),
+                child: child,
+              ),
+              child: Container(
+                width: 76,
+                height: 76,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: accent.withValues(alpha: 0.16),
+                  border: Border.all(color: accent.withValues(alpha: 0.5)),
+                ),
+                child: Icon(
+                  won
+                      ? Icons.emoji_events_rounded
+                      : Icons.sentiment_dissatisfied_rounded,
+                  color: accent,
+                  size: 42,
+                ),
+              ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Text(
               won ? 'Level Complete!' : 'Out of Shots',
               style: AppTextStyles.headline.copyWith(color: Colors.white),

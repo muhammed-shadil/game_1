@@ -6,12 +6,14 @@ import '../../core/config/game_config.dart';
 import '../../features/gameplay/presentation/game_page.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/levels/presentation/level_select_screen.dart';
+import '../../features/settings/presentation/settings_screen.dart';
 
 /// Route names, referenced by screens to avoid stringly-typed navigation.
 abstract class Routes {
   static const home = 'home';
   static const levels = 'levels';
   static const play = 'play';
+  static const settings = 'settings';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -29,6 +31,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: Routes.levels,
         pageBuilder: (context, state) =>
             _slide(state, const LevelSelectScreen()),
+      ),
+      GoRoute(
+        path: '/settings',
+        name: Routes.settings,
+        pageBuilder: (context, state) =>
+            _slide(state, const SettingsScreen()),
       ),
       GoRoute(
         path: '/play/:id',

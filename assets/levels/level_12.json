@@ -1,0 +1,17 @@
+{
+  "id": "level_12",
+  "name": "Balancing Act",
+  "index": 12,
+  "difficulty": "hard",
+  "shots": 3,
+  "worldSize": [66, 34],
+  "slingshot": [9, 26],
+  "starThresholds": { "twoStar": 3, "threeStar": 2 },
+  "objects": [
+    { "type": "ground", "shape": "box", "material": "ground", "position": [33, 32], "size": [96, 4] },
+    { "type": "obstacle", "shape": "box", "material": "stone", "position": [45, 29], "size": [2, 2] },
+    { "type": "obstacle", "shape": "box", "material": "wood", "position": [45, 27.6], "size": [14, 0.8] },
+    { "type": "target", "shape": "circle", "material": "target", "position": [39.5, 26], "size": [2.2, 2.2] },
+    { "type": "target", "shape": "circle", "material": "target", "position": [50.5, 26], "size": [2.2, 2.2] }
+  ]
+}

@@ -59,7 +59,7 @@ class HomeScreen extends ConsumerWidget {
                             child: _SecondaryButton(
                               icon: Icons.settings_rounded,
                               label: 'Settings',
-                              onTap: () => _showComingSoon(context, 'Settings'),
+                              onTap: () => context.pushNamed(Routes.settings),
                             ),
                           ),
                         ],
@@ -79,12 +79,6 @@ class HomeScreen extends ConsumerWidget {
           ],
         ),
       ),
-    );
-  }
-
-  void _showComingSoon(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$feature — coming soon')),
     );
   }
 }

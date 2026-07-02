@@ -139,7 +139,7 @@ class _GameViewState extends ConsumerState<_GameView> {
         children: [
           // Painted scene shows through the (transparent) game canvas.
           Image.asset(
-            'assets/images/game_bg.png',
+            widget.level.background.asset,
             fit: BoxFit.cover,
             // Gradient fallback in case the asset can't be decoded.
             errorBuilder: (context, error, stack) => const DecoratedBox(
