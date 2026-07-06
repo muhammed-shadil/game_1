@@ -86,6 +86,23 @@ class PhysicsConfig {
   /// weighty, controllable arc (as opposed to a frictionless point mass).
   static const double projectileLinearDamping = 0.02;
   static const double projectileAngularDamping = 0.04;
+
+  // ---------------------------------------------------------------------------
+  // Explosive crates.
+  // ---------------------------------------------------------------------------
+
+  /// Closing speed at which a struck crate detonates.
+  static const double explosiveTriggerSpeed = 6.0;
+
+  /// Radius (meters) of the blast. Bodies within feel an outward impulse.
+  static const double explosionRadius = 7.5;
+
+  /// Radius within which targets are destroyed outright by the blast.
+  static const double explosionKillRadius = 5.0;
+
+  /// Peak outward impulse applied at the blast center, falling off with
+  /// distance. Scaled by each body's mass so light debris flies further.
+  static const double explosionImpulse = 22.0;
 }
 
 /// Immutable bundle of the three fixture properties that define a material.

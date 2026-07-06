@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/config/game_config.dart';
+import '../../core/services/audio_service.dart';
 
 /// Wraps any widget with a premium press interaction: a subtle scale-down on
 /// pointer-down that springs back on release, plus optional haptics. Respects
@@ -55,6 +56,7 @@ class _PressableState extends State<Pressable> {
                 if (widget.haptic && GameConfig.hapticsEnabled) {
                   HapticFeedback.selectionClick();
                 }
+                AudioService.instance.tap();
                 widget.onPressed!();
               }
             : null,

@@ -15,6 +15,7 @@ class StorageService {
   final Box<String> _box;
 
   static const String _coinsKey = '__coins__';
+  static const String _settingsKey = '__settings__';
   static const String _levelPrefix = 'level:';
 
   /// Opens Hive and the progress box. Call once during app bootstrap.
@@ -32,6 +33,25 @@ class StorageService {
   Future<void> writeCoins(int coins) =>
       _box.put(_coinsKey, coins.toString());
 
+  /// Reads persisted app settings as a raw map (empty if never saved).
+  Map<String, dynamic> readSettings() {
+    final raw = _box.get(_settingsKey);
+    return raw == null ? {} : jsonDecode(raw) as Map<String, dynamic>;
+  }
+
+  Future<void> writeSettings(Map<String, dynamic> settings) =>
+      _box.put(_settingsKey, jsonEncode(settings));
+
+  /// Generic JSON-map storage for feature blobs (achievements, daily reward…).
+  /// Keys should be namespaced (e.g. '__achievements__') to avoid collisions.
+  Map<String, dynamic> readMap(String key) {
+    final raw = _box.get(key);
+    return raw == null ? {} : jsonDecode(raw) as Map<String, dynamic>;
+  }
+
+  Future<void> writeMap(String key, Map<String, dynamic> value) =>
+      _box.put(key, jsonEncode(value));
+
   /// Returns every persisted level record as raw maps, keyed by levelId.
   Map<String, Map<String, dynamic>> readAllLevelRecords() {
     final result = <String, Map<String, dynamic>>{};
@@ -48,6 +68,15 @@ class StorageService {
 
   Future<void> writeLevelRecord(String levelId, Map<String, dynamic> record) =>
       _box.put('$_levelPrefix$levelId', jsonEncode(record));
+
+  /// Clears only level progress + coins (leaves settings / achievements).
+  Future<void> clearProgress() async {
+    final keys = _box.keys
+        .where((k) =>
+            k is String && (k.startsWith(_levelPrefix) || k == _coinsKey))
+        .toList();
+    await _box.deleteAll(keys);
+  }
 
   Future<void> clearAll() => _box.clear();
 }

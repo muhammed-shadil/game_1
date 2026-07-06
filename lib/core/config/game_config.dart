@@ -6,7 +6,7 @@ class GameConfig {
   const GameConfig._();
 
   static const String appName = 'Kinetix';
-  static const String tagline = 'Physics, perfected.';
+  static const String tagline = 'Outsmart gravity.';
 
   /// Hive box name used for persisted progress.
   static const String progressBoxName = 'progress_box';
@@ -38,6 +38,9 @@ class GameConfig {
 
   /// Whether haptics should fire. Toggled by the settings/accessibility layer.
   static bool hapticsEnabled = true;
+
+  /// Whether sound effects and music should play.
+  static bool soundEnabled = true;
 
   /// When true, cosmetic animations are minimised (accessibility).
   static bool reducedMotion = false;

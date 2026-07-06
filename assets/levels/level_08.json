@@ -1,0 +1,16 @@
+{
+  "id": "level_08",
+  "name": "Behind the Wall",
+  "index": 8,
+  "difficulty": "medium",
+  "shots": 3,
+  "worldSize": [64, 34],
+  "slingshot": [9, 26],
+  "starThresholds": { "twoStar": 3, "threeStar": 2 },
+  "objects": [
+    { "type": "ground", "shape": "box", "material": "ground", "position": [32, 32], "size": [90, 4] },
+    { "type": "obstacle", "shape": "box", "material": "stone", "position": [40, 23], "size": [1.5, 14] },
+    { "type": "target", "shape": "box", "material": "target", "position": [48, 28], "size": [2.2, 4] },
+    { "type": "target", "shape": "circle", "material": "target", "position": [54, 28.4], "size": [2.6, 2.6] }
+  ]
+}

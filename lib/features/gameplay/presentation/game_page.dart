@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/config/game_config.dart';
+import '../../achievements/application/achievements_providers.dart';
 import '../../levels/application/level_providers.dart';
 import '../../levels/domain/level.dart';
 import '../../progress/application/progress_providers.dart';
@@ -85,6 +86,9 @@ class _GameViewState extends ConsumerState<_GameView> {
           );
     }
 
+    // Evaluate achievements after progress is recorded (fire-and-forget).
+    ref.read(achievementsProvider.notifier).recordRun(result);
+
     final gainedStars =
         result.won ? (result.stars - prevStars).clamp(0, 3) : 0;
 
@@ -139,7 +143,7 @@ class _GameViewState extends ConsumerState<_GameView> {
         children: [
           // Painted scene shows through the (transparent) game canvas.
           Image.asset(
-            'assets/images/game_bg.png',
+            widget.level.background.asset,
             fit: BoxFit.cover,
             // Gradient fallback in case the asset can't be decoded.
             errorBuilder: (context, error, stack) => const DecoratedBox(

@@ -56,6 +56,14 @@ class ProgressNotifier extends Notifier<PlayerProfile> {
     await _storage.writeCoins(newCoins);
   }
 
+  /// Adds coins (e.g. an achievement or daily reward payout) and persists.
+  Future<void> awardCoins(int amount) async {
+    if (amount <= 0) return;
+    final newCoins = state.coins + amount;
+    state = state.copyWith(coins: newCoins);
+    await _storage.writeCoins(newCoins);
+  }
+
   /// A level is unlocked if it's the first, or the previous one is completed.
   bool isUnlocked(String levelId, List<String> orderedIds) {
     final idx = orderedIds.indexOf(levelId);
@@ -65,7 +73,7 @@ class ProgressNotifier extends Notifier<PlayerProfile> {
   }
 
   Future<void> resetAll() async {
-    await _storage.clearAll();
+    await _storage.clearProgress();
     state = const PlayerProfile();
   }
 }

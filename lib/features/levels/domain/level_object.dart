@@ -6,12 +6,17 @@ enum LevelObjectType {
   ground,
   obstacle,
   target,
+
+  /// A crate that detonates when struck hard, blasting nearby bodies and
+  /// destroying nearby targets (and chain-triggering other crates).
+  explosive,
   unknown;
 
   static LevelObjectType parse(String? raw) => switch (raw) {
         'ground' => LevelObjectType.ground,
         'obstacle' => LevelObjectType.obstacle,
         'target' => LevelObjectType.target,
+        'explosive' => LevelObjectType.explosive,
         _ => LevelObjectType.unknown,
       };
 }

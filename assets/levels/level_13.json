@@ -1,0 +1,16 @@
+{
+  "id": "level_13",
+  "name": "Long Shot",
+  "index": 13,
+  "difficulty": "expert",
+  "shots": 2,
+  "worldSize": [72, 34],
+  "slingshot": [9, 26],
+  "starThresholds": { "twoStar": 2, "threeStar": 1 },
+  "objects": [
+    { "type": "ground", "shape": "box", "material": "ground", "position": [36, 32], "size": [110, 4] },
+    { "type": "obstacle", "shape": "box", "material": "stone", "position": [56, 28], "size": [1.5, 4] },
+    { "type": "target", "shape": "box", "material": "target", "position": [60, 28], "size": [2.4, 4] },
+    { "type": "target", "shape": "box", "material": "target", "position": [64, 28], "size": [2.4, 4] }
+  ]
+}

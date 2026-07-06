@@ -1,0 +1,18 @@
+{
+  "id": "level_11",
+  "name": "The Fortress",
+  "index": 11,
+  "difficulty": "hard",
+  "shots": 4,
+  "worldSize": [66, 34],
+  "slingshot": [9, 26],
+  "starThresholds": { "twoStar": 4, "threeStar": 2 },
+  "objects": [
+    { "type": "ground", "shape": "box", "material": "ground", "position": [33, 32], "size": [96, 4] },
+    { "type": "obstacle", "shape": "box", "material": "stone", "position": [40, 26], "size": [1.5, 8] },
+    { "type": "obstacle", "shape": "box", "material": "stone", "position": [52, 26], "size": [1.5, 8] },
+    { "type": "obstacle", "shape": "box", "material": "stone", "position": [43.5, 22.2], "size": [6, 1.2] },
+    { "type": "target", "shape": "box", "material": "target", "position": [45, 28], "size": [2, 4] },
+    { "type": "target", "shape": "box", "material": "target", "position": [49, 28], "size": [2, 4] }
+  ]
+}

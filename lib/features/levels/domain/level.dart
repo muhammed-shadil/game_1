@@ -33,6 +33,38 @@ enum LevelDifficulty {
       };
 }
 
+/// Selectable scenery for a level. Each maps to a bundled background image.
+/// A level can set this explicitly in JSON; otherwise it's derived from the
+/// difficulty so the world visibly changes as the player progresses.
+enum BackgroundTheme {
+  day,
+  sunset,
+  night,
+  desert,
+  snow;
+
+  String get asset => 'assets/images/bg_$name.png';
+
+  static BackgroundTheme parse(String? raw) => switch (raw) {
+        'day' => BackgroundTheme.day,
+        'sunset' => BackgroundTheme.sunset,
+        'night' => BackgroundTheme.night,
+        'desert' => BackgroundTheme.desert,
+        'snow' => BackgroundTheme.snow,
+        _ => BackgroundTheme.day,
+      };
+
+  static BackgroundTheme fromDifficulty(LevelDifficulty d) => switch (d) {
+        LevelDifficulty.tutorial => BackgroundTheme.day,
+        LevelDifficulty.easy => BackgroundTheme.day,
+        LevelDifficulty.medium => BackgroundTheme.sunset,
+        LevelDifficulty.hard => BackgroundTheme.night,
+        LevelDifficulty.expert => BackgroundTheme.desert,
+        LevelDifficulty.challenge => BackgroundTheme.snow,
+        LevelDifficulty.bonus => BackgroundTheme.snow,
+      };
+}
+
 /// A fully parsed, immutable level definition. This is the contract a future
 /// visual level editor must produce.
 class Level {
@@ -47,6 +79,7 @@ class Level {
     required this.objects,
     required this.twoStarShots,
     required this.threeStarShots,
+    required this.background,
     this.gravityScale = 1.0,
   });
 
@@ -73,6 +106,9 @@ class Level {
   final int twoStarShots;
   final int threeStarShots;
 
+  /// Scenery drawn behind the play area.
+  final BackgroundTheme background;
+
   int get targetCount =>
       objects.where((o) => o.type == LevelObjectType.target).length;
 
@@ -94,12 +130,16 @@ class Level {
     final world = vec(json['worldSize'], Vector2(60, 34));
     final shots = (json['shots'] as num?)?.toInt() ?? GameConfig.defaultShots;
     final stars = json['starThresholds'] as Map<String, dynamic>?;
+    final difficulty = LevelDifficulty.parse(json['difficulty'] as String?);
 
     return Level(
       id: json['id'] as String,
       name: json['name'] as String? ?? 'Untitled',
       index: (json['index'] as num?)?.toInt() ?? 0,
-      difficulty: LevelDifficulty.parse(json['difficulty'] as String?),
+      difficulty: difficulty,
+      background: json['background'] != null
+          ? BackgroundTheme.parse(json['background'] as String?)
+          : BackgroundTheme.fromDifficulty(difficulty),
       shots: shots,
       worldSize: world,
       gravityScale: (json['gravityScale'] as num?)?.toDouble() ?? 1.0,

@@ -1,0 +1,21 @@
+{
+  "id": "level_15",
+  "name": "Grand Finale",
+  "index": 15,
+  "difficulty": "challenge",
+  "shots": 5,
+  "worldSize": [72, 34],
+  "slingshot": [9, 26],
+  "starThresholds": { "twoStar": 4, "threeStar": 3 },
+  "objects": [
+    { "type": "ground", "shape": "box", "material": "ground", "position": [36, 32], "size": [110, 4] },
+    { "type": "target", "shape": "box", "material": "target", "position": [22, 28], "size": [2.2, 4] },
+    { "type": "obstacle", "shape": "box", "material": "stone", "position": [34, 28], "size": [2, 4] },
+    { "type": "target", "shape": "box", "material": "target", "position": [34, 24.5], "size": [2.2, 3] },
+    { "type": "obstacle", "shape": "box", "material": "wood", "position": [46, 28], "size": [2, 4] },
+    { "type": "target", "shape": "box", "material": "target", "position": [46, 24.5], "size": [2.2, 3] },
+    { "type": "obstacle", "shape": "box", "material": "stone", "position": [58, 28], "size": [2, 4] },
+    { "type": "target", "shape": "box", "material": "target", "position": [58, 24.5], "size": [2.2, 3] },
+    { "type": "target", "shape": "circle", "material": "target", "position": [66, 28.4], "size": [2.6, 2.6] }
+  ]
+}

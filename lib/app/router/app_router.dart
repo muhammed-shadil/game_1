@@ -3,15 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/config/game_config.dart';
+import '../../features/achievements/presentation/achievements_screen.dart';
 import '../../features/gameplay/presentation/game_page.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/levels/presentation/level_select_screen.dart';
+import '../../features/settings/presentation/settings_screen.dart';
+import '../../features/splash/presentation/splash_screen.dart';
 
 /// Route names, referenced by screens to avoid stringly-typed navigation.
 abstract class Routes {
+  static const splash = 'splash';
   static const home = 'home';
   static const levels = 'levels';
   static const play = 'play';
+  static const settings = 'settings';
+  static const achievements = 'achievements';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -20,6 +26,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/',
+        name: Routes.splash,
+        pageBuilder: (context, state) =>
+            _fade(state, const SplashScreen()),
+      ),
+      GoRoute(
+        path: '/home',
         name: Routes.home,
         pageBuilder: (context, state) =>
             _fade(state, const HomeScreen()),
@@ -29,6 +41,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: Routes.levels,
         pageBuilder: (context, state) =>
             _slide(state, const LevelSelectScreen()),
+      ),
+      GoRoute(
+        path: '/settings',
+        name: Routes.settings,
+        pageBuilder: (context, state) =>
+            _slide(state, const SettingsScreen()),
+      ),
+      GoRoute(
+        path: '/achievements',
+        name: Routes.achievements,
+        pageBuilder: (context, state) =>
+            _slide(state, const AchievementsScreen()),
       ),
       GoRoute(
         path: '/play/:id',
