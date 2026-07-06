@@ -20,6 +20,9 @@ Future<void> main() async {
   ]);
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
+
+
+
   // Bootstrap persistence before the first frame so progress is available
   // synchronously to the UI (avoids a loading flash on the menu).
   final storage = await StorageService.initialize();
@@ -33,7 +36,6 @@ Future<void> main() async {
   GameConfig.hapticsEnabled = settings.haptics;
   GameConfig.reducedMotion = settings.reducedMotion;
   GameConfig.soundEnabled = settings.soundEnabled;
-
   await AudioService.instance.init();
   AudioService.instance.startMusic();
 
