@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/game_app.dart';
 import 'core/config/game_config.dart';
+import 'core/services/ad_service.dart';
 import 'core/services/audio_service.dart';
 import 'core/services/storage_service.dart';
 import 'features/progress/application/progress_providers.dart';
@@ -38,6 +41,10 @@ Future<void> main() async {
   GameConfig.soundEnabled = settings.soundEnabled;
   await AudioService.instance.init();
   AudioService.instance.startMusic();
+
+  // Initialise AdMob and warm up interstitial/app-open ads. Fail-safe: if the
+  // SDK can't start, the app runs ad-free rather than blocking the first frame.
+  unawaited(AdService.instance.init());
 
   runApp(
     ProviderScope(

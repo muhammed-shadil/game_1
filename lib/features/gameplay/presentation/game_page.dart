@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/config/game_config.dart';
+import '../../../core/services/ad_service.dart';
 import '../../achievements/application/achievements_providers.dart';
 import '../../levels/application/level_providers.dart';
 import '../../levels/domain/level.dart';
@@ -56,7 +57,12 @@ class _GameViewState extends ConsumerState<_GameView> {
   int _epoch = 0;
   GameResult? _result;
   int _coinsEarned = 0;
+  bool _coinsDoubled = false;
   bool _paused = false;
+
+  /// Guards the rewarded-ad flows so a double-tap can't present two ads or
+  /// award twice.
+  bool _adBusy = false;
 
   @override
   void initState() {
@@ -95,16 +101,58 @@ class _GameViewState extends ConsumerState<_GameView> {
     setState(() {
       _result = result;
       _coinsEarned = gainedStars * GameConfig.coinsPerStar;
+      _coinsDoubled = false;
     });
   }
 
   void _restart() {
+    // Retrying counts as a level exit — the ad service decides (via its caps)
+    // whether an interstitial actually shows. Never fires on "Next".
+    AdService.instance.maybeShowInterstitialOnLevelExit();
     setState(() {
       _epoch++;
       _game = _buildGame();
       _result = null;
+      _coinsDoubled = false;
       _paused = false;
     });
+  }
+
+  /// Rewarded ad on a win: watch to double the coins just earned.
+  Future<void> _watchAdToDoubleCoins() async {
+    if (_adBusy || _coinsDoubled || _coinsEarned <= 0) return;
+    _adBusy = true;
+    final earned = await AdService.instance.showRewarded();
+    if (!mounted) {
+      _adBusy = false;
+      return;
+    }
+    if (earned) {
+      // Award the same amount again so the on-screen total is doubled.
+      await ref.read(progressProvider.notifier).awardCoins(_coinsEarned);
+      if (!mounted) return;
+      setState(() {
+        _coinsEarned *= 2;
+        _coinsDoubled = true;
+      });
+    }
+    _adBusy = false;
+  }
+
+  /// Rewarded ad on a loss: watch to earn one more shot and resume the run.
+  Future<void> _watchAdToContinue() async {
+    if (_adBusy) return;
+    _adBusy = true;
+    final earned = await AdService.instance.showRewarded();
+    if (!mounted) {
+      _adBusy = false;
+      return;
+    }
+    if (earned) {
+      setState(() => _result = null);
+      _game.grantExtraShot();
+    }
+    _adBusy = false;
   }
 
   void _togglePause(bool pause) {
@@ -116,7 +164,11 @@ class _GameViewState extends ConsumerState<_GameView> {
     }
   }
 
-  void _goHome() => context.goNamed(Routes.home);
+  void _goHome() {
+    // Leaving to the menu counts as a level exit for interstitial pacing.
+    AdService.instance.maybeShowInterstitialOnLevelExit();
+    context.goNamed(Routes.home);
+  }
 
   void _goNext() {
     final next = _nextLevelId();
@@ -177,6 +229,16 @@ class _GameViewState extends ConsumerState<_GameView> {
               onRetry: _restart,
               onHome: _goHome,
               onNext: _result!.won && _nextLevelId() != null ? _goNext : null,
+              coinsDoubled: _coinsDoubled,
+              // Only surface the rewarded buttons when an ad is actually ready,
+              // so a tap always results in a video (never a dead button).
+              onDoubleCoins: _result!.won && AdService.instance.isRewardedReady
+                  ? _watchAdToDoubleCoins
+                  : null,
+              onContinueWithAd:
+                  !_result!.won && AdService.instance.isRewardedReady
+                      ? _watchAdToContinue
+                      : null,
             ),
         ],
       ),

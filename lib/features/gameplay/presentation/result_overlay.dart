@@ -20,6 +20,9 @@ class ResultOverlay extends StatelessWidget {
     required this.onRetry,
     required this.onHome,
     this.onNext,
+    this.coinsDoubled = false,
+    this.onDoubleCoins,
+    this.onContinueWithAd,
   });
 
   final bool won;
@@ -28,6 +31,18 @@ class ResultOverlay extends StatelessWidget {
   final VoidCallback onRetry;
   final VoidCallback onHome;
   final VoidCallback? onNext;
+
+  /// True once the win coins have been doubled via a rewarded ad — hides the
+  /// "double" button and reflects the boosted total.
+  final bool coinsDoubled;
+
+  /// Rewarded-ad hook on a win: doubles [coinsEarned]. Null hides the button
+  /// (no ad ready / ads unavailable). The parent presents the ad and awards.
+  final VoidCallback? onDoubleCoins;
+
+  /// Rewarded-ad hook on a loss: watch an ad to get one more shot and resume.
+  /// The parent presents the ad, grants the shot and dismisses this overlay.
+  final VoidCallback? onContinueWithAd;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +88,9 @@ class ResultOverlay extends StatelessWidget {
         onRetry: onRetry,
         onHome: onHome,
         onNext: onNext,
+        coinsDoubled: coinsDoubled,
+        onDoubleCoins: onDoubleCoins,
+        onContinueWithAd: onContinueWithAd,
       ),
     );
   }
@@ -86,6 +104,9 @@ class _Card extends StatelessWidget {
     required this.onRetry,
     required this.onHome,
     required this.onNext,
+    required this.coinsDoubled,
+    required this.onDoubleCoins,
+    required this.onContinueWithAd,
   });
 
   final bool won;
@@ -94,6 +115,9 @@ class _Card extends StatelessWidget {
   final VoidCallback onRetry;
   final VoidCallback onHome;
   final VoidCallback? onNext;
+  final bool coinsDoubled;
+  final VoidCallback? onDoubleCoins;
+  final VoidCallback? onContinueWithAd;
 
   @override
   Widget build(BuildContext context) {
@@ -139,13 +163,34 @@ class _Card extends StatelessWidget {
               StarRating(stars: stars, size: 38, animate: true, spacing: 6),
               const SizedBox(height: 12),
               _CoinReward(coins: coinsEarned),
-            ] else
+              // Rewarded ad: watch to double the coins just earned.
+              if (onDoubleCoins != null && !coinsDoubled && coinsEarned > 0) ...[
+                const SizedBox(height: 16),
+                _RewardAdButton(
+                  icon: Icons.monetization_on_rounded,
+                  label: 'Double Coins',
+                  accent: AppColors.warning,
+                  onTap: onDoubleCoins!,
+                ),
+              ],
+            ] else ...[
               Text(
                 'So close — give it another go.',
                 textAlign: TextAlign.center,
                 style: AppTextStyles.body
                     .copyWith(color: Colors.white.withValues(alpha: 0.7)),
               ),
+              // Rewarded ad: watch to earn one more shot and continue this run.
+              if (onContinueWithAd != null) ...[
+                const SizedBox(height: 18),
+                _RewardAdButton(
+                  icon: Icons.sports_baseball_rounded,
+                  label: 'Continue  •  +1 Shot',
+                  accent: AppColors.success,
+                  onTap: onContinueWithAd!,
+                ),
+              ],
+            ],
             const SizedBox(height: 22),
             Row(
               children: [
@@ -284,6 +329,83 @@ class _CoinReward extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// A rewarded-ad call-to-action: a bright gradient pill with a small "Ad" chip
+/// so it reads as an optional bonus, never a forced interruption.
+class _RewardAdButton extends StatelessWidget {
+  const _RewardAdButton({
+    required this.icon,
+    required this.label,
+    required this.accent,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color accent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Pressable(
+      semanticLabel: label,
+      onPressed: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(colors: [
+            accent.withValues(alpha: 0.85),
+            accent.withValues(alpha: 0.55),
+          ]),
+          boxShadow: [
+            BoxShadow(
+              color: accent.withValues(alpha: 0.35),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.button.copyWith(color: Colors.white),
+              ),
+            ),
+            const SizedBox(width: 10),
+            // Tiny "Ad" badge — sets the expectation that a video will play.
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.28),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.play_arrow_rounded,
+                      color: Colors.white, size: 14),
+                  Text('Ad',
+                      style: AppTextStyles.label.copyWith(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

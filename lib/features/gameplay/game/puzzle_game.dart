@@ -344,6 +344,22 @@ class PuzzleGame extends Forge2DGame<PuzzleWorld> {
     }
   }
 
+  /// Revives a just-lost run by granting one more shot — used by the "Continue"
+  /// rewarded-ad flow on the loss overlay. Only valid right after a loss (the
+  /// scene is settled with targets remaining); a no-op otherwise.
+  void grantExtraShot() {
+    if (!_resolved || phase.value != GamePhase.lost) return;
+    _resolved = false;
+    _settleTimer = 0;
+    _simTime = 0;
+    shotsLeft.value += 1;
+    phase.value = GamePhase.aiming;
+    _activeProjectile?.markSpent();
+    _activeProjectile = null;
+    world.loadNextProjectile();
+    _focusOnSlingshot();
+  }
+
   void _finish({required bool won}) {
     if (_resolved) return;
     _resolved = true;
